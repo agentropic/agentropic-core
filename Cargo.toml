@@ -1,0 +1,14 @@
+[package]
+name = "Agentropic-core"
+version = "0.1.0"
+edition = "2024"
+description = "Core abstractions for Agent-Oriented Programming in Rust"
+license = "MIT"
+repository = "https://github.com/agentropic/agentropic-core"
+
+[dependencies]
+async-trait = "0.1.89"
+serde = "1.0.228"
+thiserror = "2.0.17"
+uuid = "1.19.0"
+
