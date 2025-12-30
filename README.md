@@ -1,112 +1,216 @@
-# Agentropic Core
+# agentropic-core
 
-Agentropic Core defines the **foundational programming paradigm** for Agent-Oriented Programming (AOP).
+[![Crates.io](https://img.shields.io/crates/v/agentropic-core.svg)](https://crates.io/crates/agentropic-core)
+[![Documentation](https://docs.rs/agentropic-core/badge.svg)](https://docs.rs/agentropic-core)
+[![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg)](LICENSE)
 
-It answers one question:
+**Core primitives, traits, and abstractions for agent-oriented programming in Rust.**
 
-> **What is an agent, formally and programmatically?**
-
-It provides the core abstractions, lifecycles, and communication models that all Agentropic-based systems rely on.
-
----
-
-## 🎯 Scope
-
-- **Agent** – Autonomous entity with beliefs, goals, and plans
-- **Beliefs** – Agent’s internal representation of the world
-- **Goals** – Desired future states
-- **Plans** – Ordered actions to achieve goals
-- **Actions** – Atomic operations
-- **Decision Engine** – Strategy for choosing plans
+`agentropic-core` is the foundational crate of the Agentropic ecosystem, providing the building blocks for creating autonomous, intelligent agents. It defines agent identity, lifecycle management, core traits, and fundamental abstractions that all other Agentropic crates build upon.
 
 ---
 
-## 🧱 Architecture
+## 🎯 Purpose
 
-```text
-agentropic-core/
-├── Cargo.toml
-├── README.md
-├── src/
-│   ├── lib.rs
-│   │
-│   ├── agent/
-│   │   ├── mod.rs
-│   │   ├── agent.rs
-│   │   ├── lifecycle.rs
-│   │   └── context.rs
-│   │
-│   ├── belief/
-│   │   ├── mod.rs
-│   │   └── belief.rs
-│   │
-│   ├── goal/
-│   │   ├── mod.rs
-│   │   └── goal.rs
-│   │
-│   ├── plan/
-│   │   ├── mod.rs
-│   │   └── plan.rs
-│   │
-│   ├── action/
-│   │   ├── mod.rs
-│   │   └── action.rs
-│   │
-│   ├── decision/
-│   │   ├── mod.rs
-│   │   └── decision.rs
-│   │
-│   ├── message/
-│   │   ├── mod.rs
-│   │   └── message.rs
-│   │
-│   ├── error.rs
-│   └── prelude.rs
-│
-└── tests/
-    └── basic_agent.rs
+This crate establishes:
+
+- **Agent Identity**: Unique identification and addressing for agents
+- **Agent Traits**: Core behavioral interfaces that all agents implement
+- **Lifecycle Management**: Agent creation, initialization, execution, and termination
+- **Core Abstractions**: Fundamental types and patterns for agent-oriented systems
+
+---
+
+## 🧩 Core Concepts
+
+### Agent Identity
+
+Every agent has a unique identity that enables:
+- Addressability in multi-agent systems
+- Message routing and communication
+- Access control and permissions
+- Tracking and observability
+```rust
+use agentropic_core::{AgentId, AgentIdentity};
+
+let agent_id = AgentId::new();
+let identity = AgentIdentity::new(agent_id, "trading-agent");
+```
+
+### Agent Trait
+
+The `Agent` trait is the fundamental interface all agents must implement:
+```rust
+use agentropic_core::{Agent, AgentContext, AgentResult};
+
+#[async_trait]
+pub trait Agent: Send + Sync {
+    /// Unique identifier for this agent
+    fn id(&self) -> &AgentId;
+    
+    /// Initialize the agent
+    async fn initialize(&mut self, ctx: &AgentContext) -> AgentResult<()>;
+    
+    /// Execute the agent's main behavior
+    async fn execute(&mut self, ctx: &AgentContext) -> AgentResult<()>;
+    
+    /// Gracefully shutdown the agent
+    async fn shutdown(&mut self, ctx: &AgentContext) -> AgentResult<()>;
+}
+```
+
+### Agent Lifecycle
+
+Agents follow a well-defined lifecycle:
+
+1. **Creation** → Agent instance is constructed
+2. **Initialize** → Resources allocated, connections established
+3. **Execute** → Main agent behavior runs
+4. **Shutdown** → Cleanup and graceful termination
+
+The lifecycle is managed by the runtime (see `agentropic-runtime`).
+
+### Agent Context
+
+`AgentContext` provides agents with access to:
+- Configuration
+- Logging and telemetry
+- Shared resources
+- Communication channels
+
+---
+
+## 📦 What's Included
+
+### Core Types
+
+- `AgentId` - Unique agent identifier (UUID-based)
+- `AgentIdentity` - Full identity with ID and human-readable name
+- `AgentMetadata` - Descriptive metadata about an agent
+- `AgentState` - Lifecycle state tracking
+
+### Traits
+
+- `Agent` - Core agent behavior
+- `AgentFactory` - Agent construction and dependency injection
+- `Perceivable` - Agents that can perceive their environment
+- `Actionable` - Agents that can take actions
+
+### Result Types
+
+- `AgentResult<T>` - Standard result type for agent operations
+- `AgentError` - Comprehensive error types for agent failures
+
+### Utilities
+
+- Agent lifecycle state machines
+- Identity generation and validation
+- Context management helpers
+
+---
+
+## 🚀 Usage
+
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+agentropic-core = "0.1.0"
+```
+
+### Basic Agent Implementation
+```rust
+use agentropic_core::{Agent, AgentId, AgentContext, AgentResult};
+use async_trait::async_trait;
+
+pub struct SimpleAgent {
+    id: AgentId,
+    counter: u64,
+}
+
+impl SimpleAgent {
+    pub fn new() -> Self {
+        Self {
+            id: AgentId::new(),
+            counter: 0,
+        }
+    }
+}
+
+#[async_trait]
+impl Agent for SimpleAgent {
+    fn id(&self) -> &AgentId {
+        &self.id
+    }
+
+    async fn initialize(&mut self, ctx: &AgentContext) -> AgentResult<()> {
+        ctx.log_info("SimpleAgent initializing");
+        Ok(())
+    }
+
+    async fn execute(&mut self, ctx: &AgentContext) -> AgentResult<()> {
+        self.counter += 1;
+        ctx.log_info(&format!("Execution count: {}", self.counter));
+        Ok(())
+    }
+
+    async fn shutdown(&mut self, ctx: &AgentContext) -> AgentResult<()> {
+        ctx.log_info("SimpleAgent shutting down");
+        Ok(())
+    }
+}
 ```
 
 ---
 
-## 🧠 Design Principles
+## 🏗️ Architecture
 
-- Agents are **first-class program entities**
-- Behavior is explicit and inspectable
-- No hard dependency on AI models
-- Rust traits define agent capabilities
+`agentropic-core` is designed to be:
 
----
-
-## 🚫 Out of Scope
-
-- LLM integrations
-- Execution engines
-- Deployment concerns
+- **Minimal**: Only fundamental abstractions, no opinions on implementation
+- **Extensible**: Traits allow for diverse agent types
+- **Safe**: Leverages Rust's type system for correctness
+- **Async-first**: Built for concurrent, non-blocking agent execution
 
 ---
 
-## 🔗 Part of Agentropic
+## 🔗 Related Crates
 
-Agentropic Core is used by:
-
-- **agentropic-runtime**: Agent execution and scheduling
-- **agentropic-systems**: Multi-agent system patterns
-- **agentropic-examples**: Reference implementations
-
----
-
-## 🛠️ Usage
-
-```text
-use agentropic_core::prelude::*;
-
-let mut agent = Agent::new();
-agent.goals.push(Goal {
-    description: "Explore environment".into(),
-    achieved: false,
-});
-```
+- **[agentropic-messaging](../agentropic-messaging)** - Agent communication protocols
+- **[agentropic-cognition](../agentropic-cognition)** - Reasoning and decision-making
+- **[agentropic-runtime](../agentropic-runtime)** - Agent execution engine
+- **[agentropic](../agentropic)** - Batteries-included facade
 
 ---
 
+## 📚 Documentation
+
+Full API documentation is available on [docs.rs](https://docs.rs/agentropic-core).
+
+For guides and tutorials, see [agentropic-docs](https://github.com/agentropic/agentropic-docs).
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see the [contributing guidelines](../../CONTRIBUTING.md).
+
+---
+
+## 📜 License
+
+Licensed under either of:
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
+- MIT License ([LICENSE-MIT](LICENSE-MIT))
+
+at your option.
+
+---
+
+## 🌟 Status
+
+**Active Development** - This crate is under active development. APIs may change before 1.0 release.
+
+---
+
+*Part of the [Agentropic](https://github.com/agentropic) ecosystem for agent-oriented programming in Rust.*
