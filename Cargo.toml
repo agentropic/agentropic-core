@@ -1,7 +1,7 @@
 [package]
 name = "agentropic-core"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 authors = ["Agentropic <agentropic@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "Core primitives, traits, and abstractions for agent-oriented programming"
