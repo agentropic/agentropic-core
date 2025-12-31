@@ -1,8 +1,63 @@
 use agentropic_core::prelude::*;
 
+// Define a concrete agent for testing
+struct TestAgent {
+    id: AgentId,
+}
+
+impl TestAgent {
+    fn new() -> Self {
+        Self {
+            id: AgentId::new(),
+        }
+    }
+}
+
+// Implement the Agent trait for TestAgent
+#[async_trait]
+impl Agent for TestAgent {
+    fn id(&self) -> &AgentId {
+        &self.id
+    }
+
+    async fn initialize(&mut self, _ctx: &AgentContext) -> AgentResult<()> {
+        Ok(())
+    }
+
+    async fn execute(&mut self, _ctx: &AgentContext) -> AgentResult<()> {
+        Ok(())
+    }
+
+    async fn shutdown(&mut self, _ctx: &AgentContext) -> AgentResult<()> {
+        Ok(())
+    }
+}
+
+// Tests
 #[test]
 fn create_agent() {
-    let agent = Agent::new();
-    assert!(agent.beliefs.is_empty());
-    assert!(agent.goals.is_empty());
+    let agent = TestAgent::new();  
+    assert!(agent.id().to_string().len() > 0);
+}
+
+#[test]
+fn agent_has_unique_id() {
+    let agent1 = TestAgent::new();
+    let agent2 = TestAgent::new();
+    assert_ne!(agent1.id(), agent2.id());
+}
+
+#[tokio::test]
+async fn test_agent_lifecycle() {
+    let mut agent = TestAgent::new();
+    let ctx = AgentContext::new();
+    
+    // Test initialization
+    assert!(agent.initialize(&ctx).await.is_ok());
+    
+    // Test execution
+    assert!(agent.execute(&ctx).await.is_ok());
+    
+    // Test shutdown
+    assert!(agent.shutdown(&ctx).await.is_ok());
 }
