@@ -9,8 +9,9 @@ pub mod id;
 pub mod identity;
 pub mod lifecycle;
 pub mod result;
+pub mod lifecycle;
 
-// Declare prelude module
+// Add prelude module
 pub mod prelude;
 
 // Re-export commonly used items at the crate root
