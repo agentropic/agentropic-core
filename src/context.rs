@@ -1,4 +1,4 @@
-/// Agent execution context
+/// Agent git status
 #[derive(Debug)]
 pub struct AgentContext {
     // TODO: Add fields for logging, metrics, etc.
