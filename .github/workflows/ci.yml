@@ -8,18 +8,19 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
     
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@stable
       with:
-        toolchain: stable
-        override: true
         components: rustfmt, clippy
     
     - name: Cache cargo registry
@@ -40,14 +41,23 @@ jobs:
         path: target
         key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
     
-    - name: Run tests
-      run: cargo test --verbose
-    
+    # 1. Check formatting FIRST (fast, fails early)
     - name: Check formatting
       run: cargo fmt -- --check
     
-    - name: Run clippy
-      run: cargo clippy -- -D warnings
-    
+    # 2. Build the library (compile check)
     - name: Build
+      run: cargo build --verbose
+    
+    # 3. Run clippy (linting)
+    - name: Run clippy
+      run: cargo clippy --all-targets --all-features -- -D warnings
+    
+    # 4. Run tests (last, most comprehensive)
+    - name: Run tests
+      run: cargo test --verbose
+    
+    # 5. Build release (optional, for artifacts)
+    - name: Build release
       run: cargo build --verbose --release
+

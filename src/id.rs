@@ -17,3 +17,9 @@ impl Default for AgentId {
         Self::new()
     }
 }
+
+impl std::fmt::Display for AgentId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
