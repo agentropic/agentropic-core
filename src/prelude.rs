@@ -1,26 +1,19 @@
-//! # agentropic-core
+//! Prelude module for convenient imports
 //!
-//! Core primitives, traits, and abstractions for agent-oriented programming.
+//! # Examples
+//!
+//! ```rust
+//! use agentropic_core::prelude::*;
+//! ```
 
-#![warn(missing_docs)]
+// Re-export commonly used types and traits
+pub use crate::agent::Agent;
+pub use crate::id::AgentId;
+pub use crate::identity::AgentIdentity;
+pub use crate::context::AgentContext;
+pub use crate::error::AgentError;
+pub use crate::result::AgentResult;
+pub use crate::lifecycle::AgentState;
 
-// Declare all modules
-pub mod agent;
-pub mod context;
-pub mod error;
-pub mod id;
-pub mod identity;
-pub mod lifecycle;
-pub mod result;
-
-// Declare prelude module
-pub mod prelude;
-
-// Re-export commonly used items at the crate root
-pub use agent::Agent;
-pub use context::AgentContext;
-pub use error::AgentError;
-pub use id::AgentId;
-pub use identity::AgentIdentity;
-pub use lifecycle::AgentState;
-pub use result::AgentResult;
+// Re-export async-trait for convenience
+pub use async_trait::async_trait;

@@ -1,22 +1,19 @@
 use agentropic_core::prelude::*;
 
-// Helper struct for testing
+// Define a concrete agent for testing
 struct TestAgent {
     id: AgentId,
-    beliefs: Vec<String>,
-    goals: Vec<String>,
 }
 
 impl TestAgent {
     fn new() -> Self {
         Self {
             id: AgentId::new(),
-            beliefs: Vec::new(),
-            goals: Vec::new(),
         }
     }
 }
 
+// Implement the Agent trait for TestAgent
 #[async_trait]
 impl Agent for TestAgent {
     fn id(&self) -> &AgentId {
@@ -36,30 +33,26 @@ impl Agent for TestAgent {
     }
 }
 
+// Tests
 #[test]
 fn create_agent() {
     let agent = TestAgent::new();
-    assert!(agent.beliefs.is_empty());
-    assert!(agent.goals.is_empty());
+    assert!(!agent.id().to_string().is_empty());
 }
 
 #[test]
-fn agent_has_id() {
-    let agent = TestAgent::new();
-    let id = agent.id();
-    assert_eq!(id, agent.id());
+fn agent_has_unique_id() {
+    let agent1 = TestAgent::new();
+    let agent2 = TestAgent::new();
+    assert_ne!(agent1.id(), agent2.id());
 }
 
-#[test]
-fn add_beliefs() {
+#[tokio::test]
+async fn test_agent_lifecycle() {
     let mut agent = TestAgent::new();
-    agent.beliefs.push("belief1".to_string());
-    assert_eq!(agent.beliefs.len(), 1);
-}
+    let ctx = AgentContext::new();
 
-#[test]
-fn add_goals() {
-    let mut agent = TestAgent::new();
-    agent.goals.push("goal1".to_string());
-    assert_eq!(agent.goals.len(), 1);
+    assert!(agent.initialize(&ctx).await.is_ok());
+    assert!(agent.execute(&ctx).await.is_ok());
+    assert!(agent.shutdown(&ctx).await.is_ok());
 }
