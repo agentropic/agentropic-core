@@ -36,8 +36,8 @@ impl Agent for TestAgent {
 // Tests
 #[test]
 fn create_agent() {
-    let agent = TestAgent::new();  
-    assert!(agent.id().to_string().len() > 0);
+    let agent = TestAgent::new();
+    assert!(!agent.id().to_string().is_empty());
 }
 
 #[test]
@@ -51,13 +51,8 @@ fn agent_has_unique_id() {
 async fn test_agent_lifecycle() {
     let mut agent = TestAgent::new();
     let ctx = AgentContext::new();
-    
-    // Test initialization
+
     assert!(agent.initialize(&ctx).await.is_ok());
-    
-    // Test execution
     assert!(agent.execute(&ctx).await.is_ok());
-    
-    // Test shutdown
     assert!(agent.shutdown(&ctx).await.is_ok());
 }
